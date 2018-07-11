@@ -251,6 +251,7 @@ iscam <- function(reloadScenarios      = FALSE,
            "sTSRecruitmentByArea"                   = {plotTS(s,6,savefig,"RecrByArea",plotMCMC,ci,sensGroup=sgr,index=ind,burnthin=burnthin,ps=ps,leg=leg,figtype=figtype,showtitle=showtitle,opacity=opacity)},
            "sTSNaturalMortalityAllAreas"            = {plotTS(s,14,savefig,"M",plotMCMC,ci,sensGroup=sgr,index=ind,burnthin=burnthin,ps=ps,figtype=figtype,showtitle=showtitle,opacity=opacity)},
            "sTSSurveyq"                             = {plotTS(s,16,savefig,"Survey q",plotMCMC,ci,sensGroup=sgr,index=ind,burnthin=burnthin,ps=ps,figtype=figtype,showtitle=showtitle,opacity=opacity)},
+           "sTSMeanWeight"                          = {plotTS(s,17,savefig,"Mean weight",plotMCMC,ci,sensGroup=sgr,index=ind,burnthin=burnthin,ps=ps,figtype=figtype,showtitle=showtitle,opacity=opacity)},
 
 		   # Only MPD for Index
            # Index requires a check of the current gear number so that figures for other gears do not overwrite the file

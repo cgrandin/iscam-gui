@@ -80,6 +80,7 @@ plotTS <- function(scenario   = 1,         # Scenario number
   #14 Natural mortlaity all areas
   #15 Survey residuals
   #16 q~t
+  #17 Mean weight fit
 
   currFuncName <- getCurrFunc()
 
@@ -262,7 +263,25 @@ plotTS <- function(scenario   = 1,         # Scenario number
     if(plotMCMC){
       cat0(.PROJECT_NAME,"->",currFuncName,"MCMC plots for Indices not implemented. Plotting MPD.")
   	}
-	plotSurveyq(out, colors, names, lty = linetypes, verbose = !silent, leg=leg, showtitle = showtitle, opacity=opacity, add=add)
+    plotSurveyq(out, colors, names, lty = linetypes, verbose = !silent, leg=leg, showtitle = showtitle, opacity=opacity, add=add)
+  }
+
+  if(plotNum == 17){
+    ## Mean weight fit
+    if(plotMCMC){
+      cat0(.PROJECT_NAME,"->",currFuncName,"MCMC plots for mean weight fits not implemented. Plotting MPD.")
+  	}
+    ## Add SD for mean weight to out object
+    out$mean_wt_sd <- op[[1]]$inputs$control$weight_sig
+    plotMeanWeight(out,
+                   colors,
+                   names,
+                   lty = linetypes,
+                   verbose = !silent,
+                   leg = leg,
+                   showtitle = showtitle,
+                   opacity = opacity,
+                   add = add)
   }
 
   if(!is.null(indletter)){
@@ -785,7 +804,6 @@ plotNaturalMortalityMCMC <- function(out         = NULL,
   }
 }
 
-
 plotSurveyq <-    function(out       = NULL,
                            colors    = NULL,
                            names     = NULL,
@@ -907,8 +925,95 @@ plotSurveyq <-    function(out       = NULL,
   }
 }
 
+plotMeanWeight <-    function(out       = NULL,
+                              colors    = NULL,
+                              names     = NULL,
+                              lty       = NULL,
+                              verbose   = FALSE,
+                              showtitle = TRUE,
+                              leg         = "topright",
+                              add       = FALSE,
+                              opacity   = 90){
+  # MPD mean weight fits
+  # out is a list of the mpd outputs to show on the plot
+  # col is a list of the colors to use in the plot
+                                        # names is a list of the names to use in the legend
+  currFuncName <- getCurrFunc()
 
+  if(is.null(out)){
+    cat0(.PROJECT_NAME,"->",currFuncName,"You must supply an output vector (out).")
+    return(NULL)
+  }
+  if(length(out) < 1){
+    cat0(.PROJECT_NAME,"->",currFuncName,"You must supply at least one element in the output vector (out).")
+    return(NULL)
+  }
+  if(is.null(colors)){
+    cat0(.PROJECT_NAME,"->",currFuncName,"You must supply a colors vector (colors).")
+    return(NULL)
+  }
+  if(is.null(names)){
+    cat0(.PROJECT_NAME,"->",currFuncName,"You must supply a names vector (names).")
+    return(NULL)
+  }
+  if(is.null(lty)){
+    cat0(.PROJECT_NAME,"->",currFuncName,"You must supply a linetypes vector (lty).")
+    return(NULL)
+  }
+  if(!add){
+    oldPar <- par(no.readonly=TRUE)
+    on.exit(par(oldPar))
+  }
 
+  # This is required on biomass plots to make the y-axis label visible, only 2nd item is +1 from default
+  par(mar=c(5.1,5.1,4.1,2.1))
+
+  ## #par(mar=c(3,6,3,3))
+  ## title <- ""
+  if(showtitle){
+    title <- "Mean weight fits"
+  }
+
+  mpd <- out[[1]]$mpd
+  yr <- mpd$yr[1:(length(mpd$yr) - 1)]
+  obs <- mpd$obs_annual_mean_weight
+  fit <- mpd$annual_mean_weight
+
+  plot(yr,
+       fit,
+       type = "l",
+       cex = 0.8,
+       col = colors[[1]],
+       lty = lty[[1]],
+       lwd = 2,
+       ylim = c(0, 4),
+       ylab = "Mean weight",
+       xlab = "Year",
+       main = title,
+       las = 1)
+  points(yr,
+         obs,
+         col = colors[[1]],
+         pch = 20)
+  sd <- rep(out$mean_wt_sd, length(yr))
+  arrows(yr,
+         obs + sd * obs,
+         yr,
+         obs - sd * obs,
+         code = 3,
+         angle = 90,
+         length = 0.01,
+         lwd = 1,
+         col = "black")
+
+  if(!is.null(leg)){
+    legend(leg,
+           legend = names,
+           col = unlist(colors),
+           lty = unlist(lty),
+           lwd = 2)
+  }
+}
 
 plotSAR <- function(out       = NULL,
                     colors    = NULL,
@@ -2638,8 +2743,15 @@ plotIndexData <- function(scenario   = NULL,
   xlim <- c(xmin, xmax)
   ylim <- c(ymin, ymax)
   plot(yrs, inputindices$it, type="p", pch = 3, ylim=ylim, xlim=xlim, ylab="", xlab="", axes=FALSE)
-  arrows(yrs, inputindices$it + cv * inputindices$it ,yrs, inputindices$it - cv * inputindices$it,
-         code = 3, angle = 90, length = 0.01, lwd=2, col = "black")
+  arrows(yrs,
+         inputindices$it + cv * inputindices$it,
+         yrs,
+         inputindices$it - cv * inputindices$it,
+         code = 3,
+         angle = 90,
+         length = 0.01,
+         lwd=2,
+         col = "black")
   axis(1, at     = seq(min(xlim),max(xlim)),
           labels = seq(min(xlim),max(xlim)))
   axis(2)
