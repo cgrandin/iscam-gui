@@ -97,45 +97,64 @@ grid 3 1 padx=10 pady=5 sticky=W
 #--------------------------------------------------------------------#
 
      grid 1 3 relief=raised
-          grid 19 2 sticky=N relief=raised
+          grid 19 3 sticky=N relief=raised
                label text="Time series" font="bold 10" sticky=N
                null
-               radio name=viewPlotType value=sTSSpawningBiomassAllAreas          text="Spawning biomass"            function=.subView sticky=W mode=character
                null
+               radio name=viewPlotType value=sTSSpawningBiomassAllAreas          text="Spawning biomass"            function=.subView sticky=W mode=character
+               label text="Y axis max" sticky=E
+               entry name=entryYbioSingle function=.subView action="changeYbioSingle" width=12  padx=10 entryfont="10" sticky=E
                check name=showB0Ref    checked=T                                 text="B0 ref lines"           function=.subView sticky=W
+               null
                null
                check name=showBMSYRef  checked=F                                 text="BMSY ref lines"         function=.subView sticky=W
                null
+               null
                radio name=viewPlotType value=sTSSpawningDepletionAllAreas        text="Spawning depletion"          function=.subView sticky=W mode=character
+               null
                null
                radio name=viewPlotType value=sTSSAR                              text="Depl/USR/LRP"          function=.subView sticky=W mode=character
                null
+               null
                radio name=viewPlotType value=sTSVulnerableBiomassAllAreas        text="Vulnerable biomass"          function=.subView sticky=W mode=character
+               null
                null
                radio name=viewPlotType value=sTSVSBiomassAllAreas                text="S & V biomass"               function=.subView sticky=W mode=character
                null
+               null
                radio name=viewPlotType value=sTSRecruitmentAllAreas              text="Recruitment"                 function=.subView sticky=W mode=character
-               check name=recrShowFinalYear  checked=T                           text="Show final year"             function=.subView
+               null
+               check name=recrShowFinalYear  checked=T                           text="Show final year"             function=.subView sticky=E
                radio name=viewPlotType value=sTSRecruitmentDevsAllAreas          text="Recruitment deviations"      function=.subView sticky=W mode=character
                null
+               null
                radio name=viewPlotType value=sTSIndex                            text="Index fits"                   function=.subView sticky=W mode=character
-               check name=xaxisfix     checked=T                                 text="Fix x-axis"                   function=.subView
+               null
+               check name=xaxisfix     checked=T                                 text="Fix x-axis"                   function=.subView sticky=E
                radio name=viewPlotType value=sTSIndexResiduals                   text="Survey residuals"             function=.subView sticky=W mode=character
-               check name=xaxisfix     checked=T                                 text="Fix x-axis"                   function=.subView
+               null
+               check name=xaxisfix     checked=T                                 text="Fix x-axis"                   function=.subView sticky=E
 			         radio name=viewPlotType value=sFishingMortality                   text="Fishing mortality (F)"            function=.subView sticky=W mode=character
+               null
                null
                radio name=viewPlotType value=sFishingMortalityU                  text="Fishing mortality (U)"            function=.subView sticky=W mode=character
                null
+               null
                radio name=viewPlotType value=sTSNaturalMortalityAllAreas         text="Natural mortality (M)"            function=.subView sticky=W mode=character
                null
+               null
                radio name=viewPlotType value=sRefPoints                          text="Reference Points (MCMC)"       function=.subView sticky=W mode=character
-               check name=umsy         checked=F                                 text="Umsy"                          function=.subView
+               null
+               check name=umsy         checked=F                                 text="Umsy"                          function=.subView sticky=E
                radio name=viewPlotType value=sCatchLandingsObsVsExpLandings  text="Catch fit" function=.subView sticky=W mode=character
+               null
                null
 			         radio name=viewPlotType value=sTSSurveyq                          text="survey q (MPD only)"            function=.subView sticky=W mode=character
 			         null
+               null
                radio name=viewPlotType value=sTSMeanWeight                       text="Mean weight fit"                  function=.subView sticky=W mode=character
 			         null
+               null
          grid 11 1 sticky=N relief=raised
                label text="Biology" font="bold 10" sticky=N
                grid 1 3 relief=raised
@@ -194,8 +213,8 @@ grid 3 1 padx=10 pady=5 sticky=W
           null
           #4
           radio name=viewPlotType value=sSensSB             text="Spawning biomass"                  function=.subView mode=character sticky=W
-          null
-          null
+          label text="Y axis max" sticky=W
+          entry name=entryYbio function=.subView action="changeYbio" width=5  padx=10 entryfont="10" sticky=W
           null
           null
           #5

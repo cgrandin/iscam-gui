@@ -46,6 +46,7 @@ plotTS <- function(scenario   = 1,         # Scenario number
                    showB0Ref  = FALSE,        # Show the 0.2 and 0.4 B0 lines on the spawning biomass mcmc plot
                    showBMSYRef= FALSE,        # Show the 0.4 and 0.8 BMSY lines on the spawning biomass mcmc plot
                    add        = FALSE,        # If TRUE, plot will be added to current device
+                   yUpper     = NA,           # Upper limit for the y axis on a biomass plot. If NA data limits used
                    opacity    = 90            # Opaqueness (opposite of transparency) with which to draw envelopes
                    ){
 
@@ -172,12 +173,32 @@ plotTS <- function(scenario   = 1,         # Scenario number
 
   if(plotNum == 1){
     if(plotMCMC){
-      plotBiomassMCMC(out, colors, names, burnthin = burnthin, ci, verbose = !silent, leg = leg, showtitle = showtitle, showB0Ref = showB0Ref, showBMSYRef = showBMSYRef, opacity=opacity, add=add)
+      plotBiomassMCMC(out,
+                      colors,
+                      names,
+                      burnthin = burnthin,
+                      ci,
+                      verbose = !silent,
+                      leg = leg,
+                      showtitle = showtitle,
+                      showB0Ref = showB0Ref,
+                      showBMSYRef = showBMSYRef,
+                      yUpper = yUpper,
+                      opacity=opacity, add=add)
     }else{
       if(showBMSYRef){
         cat0(.PROJECT_NAME,"->",currFuncName,"BMSY reference line not available in MPD mode.")
       }
-      plotBiomassMPD(out, colors, names, lty = linetypes, verbose = !silent, leg = leg, showtitle = showtitle, showB0Ref = showB0Ref, opacity=opacity)
+      plotBiomassMPD(out,
+                     colors,
+                     names,
+                     lty = linetypes,
+                     verbose = !silent,
+                     leg = leg,
+                     showtitle = showtitle,
+                     showB0Ref = showB0Ref,
+                     yUpper = yUpper,
+                     opacity=opacity)
     }
   }
   if(plotNum == 3){
@@ -304,6 +325,7 @@ plotBiomassMPD <- function(out       = NULL,
                            showB0Ref = TRUE,
                            leg       = "topright",
                            add       = FALSE,
+                           yUpper    = NA,   # Upper limit for the y axis on a biomass plot. If NA data limits used
                            opacity   = 90){
   # Biomass plot for an MPD
   # out is a list of the mpd outputs to show on the plot
@@ -339,17 +361,19 @@ plotBiomassMPD <- function(out       = NULL,
   # This is required on biomass plots to make the y-axis label visible, only 2nd item is +1 from default
   par(mar=c(5.1,5.1,4.1,2.1))
 
-  yUpper <- max(out[[1]]$mpd$sbt, out[[1]]$mpd$sbo)
-   if(out[[1]]$mpd$sbo > 2*max(out[[1]]$mpd$sbt)){
-    # When sbo is very large, the trends in sbt are masked - don't plot sbt if more than twice the max value of sbt
-    yUpper <- 1.1*max(out[[1]]$mpd$sbt)
-  }
-  for(model in 1:length(out)){
-    if(out[[model]]$mpd$sbo > 2*max(yUpper, out[[model]]$mpd$sbt)){
-      yUpper <- max(yUpper, 1.1*out[[model]]$mpd$sbt)
-   }else{
-     yUpper <- max(yUpper, out[[model]]$mpd$sbt, out[[model]]$mpd$sbo)
-   }
+  if(is.na(yUpper)){
+    yUpper <- max(out[[1]]$mpd$sbt, out[[1]]$mpd$sbo)
+    if(out[[1]]$mpd$sbo > 2*max(out[[1]]$mpd$sbt)){
+      ## When sbo is very large, the trends in sbt are masked - don't plot sbt if more than twice the max value of sbt
+      yUpper <- 1.1*max(out[[1]]$mpd$sbt)
+    }
+    for(model in 1:length(out)){
+      if(out[[model]]$mpd$sbo > 2*max(yUpper, out[[model]]$mpd$sbt)){
+        yUpper <- max(yUpper, 1.1*out[[model]]$mpd$sbt)
+      }else{
+        yUpper <- max(yUpper, out[[model]]$mpd$sbt, out[[model]]$mpd$sbo)
+      }
+    }
   }
   #par(mar=c(3,6,3,3))
   title <- ""
@@ -388,6 +412,7 @@ plotBiomassMCMC <- function(out         = NULL,
                             showBMSYRef = FALSE,  # Show the 0.4 and 0.8 BMSY lines on the plot
                             leg         = "topright",
                             add         = FALSE,
+                            yUpper      = NA,   # Upper limit for the y axis on a biomass plot. If NA data limits used
                             opacity     = 90){
   # Biomass plot for an MCMC
   # out is a list of the mcmc outputs to show on the plot
@@ -437,9 +462,11 @@ plotBiomassMCMC <- function(out         = NULL,
     quants[[model]] <- getQuants(sbt, ci)
     boquants[[model]] <- getQuants(sbo, ci)
   }
-  yUpper <- max(quants[[1]], boquants[[1]][3])
-  for(model in 1:length(out)){
-    yUpper <- max(yUpper, quants[[model]], boquants[[1]][3])
+  if(is.na(yUpper)){
+    yUpper <- max(quants[[1]], boquants[[1]][3])
+    for(model in 1:length(out)){
+      yUpper <- max(yUpper, quants[[model]], boquants[[1]][3])
+    }
   }
 
   yrs <- as.numeric(names(out[[1]]$mcmc$sbt[[1]]))
