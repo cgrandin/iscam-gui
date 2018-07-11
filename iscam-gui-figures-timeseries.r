@@ -79,6 +79,7 @@ plotTS <- function(scenario   = 1,         # Scenario number
   #13 Relative spawning biomass with USR (0.8MSY) and LRP (0.4MSY) with uncertainties and 0.2B0 and 0.4B0 lines
   #14 Natural mortlaity all areas
   #15 Survey residuals
+  #16 q~t
 
   currFuncName <- getCurrFunc()
 
@@ -140,7 +141,7 @@ plotTS <- function(scenario   = 1,         # Scenario number
   widthScreen  <- ps$w
   heightScreen <- ps$h
 
-  if(plotNum < 1 || plotNum > 16){
+  if(plotNum < 1 || plotNum > 17){
     cat0(.PROJECT_NAME,"->",currFuncName,"The plotNum must be between 1 and 15. You passed ",plotNum)
     return(FALSE)
   }
@@ -255,7 +256,14 @@ plotTS <- function(scenario   = 1,         # Scenario number
     }
     plotIndexResidualsMPD(scenario, out, inputs, index, colors, names, linetypes, verbose = !silent, leg = leg, showtitle = showtitle, indfixaxis=indfixaxis, add=add)
   }  
-
+  
+  if(plotNum == 16){
+    # Natural mortality
+    if(plotMCMC){
+      cat0(.PROJECT_NAME,"->",currFuncName,"MCMC plots for Indices not implemented. Plotting MPD.")
+  	}
+	plotSurveyq(out, colors, names, lty = linetypes, verbose = !silent, leg=leg, showtitle = showtitle, opacity=opacity, add=add)
+  }
 
   if(!is.null(indletter)){
     .gletter(indletter)
@@ -654,9 +662,8 @@ plotNaturalMortalityMPD <- function(out       = NULL,
   }
   plot(out[[1]]$mpd$yr, out[[1]]$mpd$M_vector, type="l", col=colors[[1]], lty=lty[[1]], lwd=2,ylim=c(0,yUpper),ylab="Instantaneous natural mortality\n", xlab="Year", main=title, las=1)
   
-  #browser()
   
-  points(out[[1]]$mpd$yr, out[[1]]$mpd$M_vector, col=colors[[1]], pch=20)
+  #points(out[[1]]$mpd$yr, out[[1]]$mpd$M_vector, col=colors[[1]], pch=20)
   if(length(out) > 1){
     for(line in 2:length(out)){
 	  out[[line]]$mpd$M_vector <- out[[line]]$mpd$M[,1]	
@@ -777,6 +784,129 @@ plotNaturalMortalityMCMC <- function(out         = NULL,
     legend(leg, legend=names, col=unlist(colors), lty=1, lwd=2)
   }
 }
+
+
+plotSurveyq <-    function(out       = NULL,
+                           colors    = NULL,
+                           names     = NULL,
+                           lty       = NULL,
+                           verbose   = FALSE,
+                           showtitle = TRUE,
+                           leg         = "topright",		   
+                           add       = FALSE,
+                           opacity   = 90){
+  # MPD esitmates of survey q
+  # out is a list of the mpd outputs to show on the plot
+  # col is a list of the colors to use in the plot
+  # names is a list of the names to use in the legend
+  currFuncName <- getCurrFunc()
+  
+
+  if(is.null(out)){
+    cat0(.PROJECT_NAME,"->",currFuncName,"You must supply an output vector (out).")
+    return(NULL)
+  }
+  if(length(out) < 1){
+    cat0(.PROJECT_NAME,"->",currFuncName,"You must supply at least one element in the output vector (out).")
+    return(NULL)
+  }
+  if(is.null(colors)){
+    cat0(.PROJECT_NAME,"->",currFuncName,"You must supply a colors vector (colors).")
+    return(NULL)
+  }
+  if(is.null(names)){
+    cat0(.PROJECT_NAME,"->",currFuncName,"You must supply a names vector (names).")
+    return(NULL)
+  }
+  if(is.null(lty)){
+    cat0(.PROJECT_NAME,"->",currFuncName,"You must supply a linetypes vector (lty).")
+    return(NULL)
+  }
+  if(!add){
+    oldPar <- par(no.readonly=TRUE)
+    on.exit(par(oldPar))
+  }
+
+  # This is required on biomass plots to make the y-axis label visible, only 2nd item is +1 from default
+  par(mar=c(5.1,5.1,4.1,2.1))
+
+  # Survey q is estimated a single value (MPD esitmate) for each survey time series, eg, Survey 1, Survey 2, etc.
+  # check if admb is filling vector qt with q-values. If no, fill qt with q-values.
+  q_matrix <- matrix(NA,nrow=length(out[[1]]$mpd$q),ncol=length(out[[1]]$mpd$qt[1,]))
+  
+  #create a matrix of qt values
+  i<-0.
+  j<-0.
+  if(sum(out[[1]]$mpd$qt,na.rm=TRUE) != 0.){
+	  #Check if qt is a matrix of zeros
+	  q_matrix <- out[[1]]$mpd$qt
+  }else{
+	  for(i in 1:length(out[[1]]$mpd$q)){
+		  for(j in 1:length(out[[1]]$mpd$qt[1,])){
+			  if(as.numeric(is.na(out[[1]]$mpd$qt[i,j])) ==1. ){
+				  #if qt[i,j] == NA (ie, TRUE==1), keep as NA (this deals with ragged matrix)
+				  q_matrix[i,j] <- NA
+			  }
+			  if(as.numeric(is.na(out[[1]]$mpd$qt[i,j])) ==0. ){
+			      #if qt[i,j] != NA (ie, FALSE==0.), replace with q[i] value
+				  q_matrix[i,j] <- out[[1]]$mpd$q[i] 
+			  }							
+		}
+	}
+  }
+  # transform q_matrix into a vector of q-values and remove any NAs
+  q_vector <- as.vector(t(q_matrix))
+  q_vector <- as.numeric(na.omit(q_vector))
+
+  yUpper <- 2
+  
+  #par(mar=c(3,6,3,3))
+  title <- ""
+  if(showtitle){
+    title <- "Survey q"
+  }
+
+  plot(out[[1]]$mpd$yr, q_vector, type="l", cex=0.8, col=colors[[1]], lty=lty[[1]], lwd=1,ylim=c(0,yUpper),ylab="Survey q", xlab="Year", main=title, las=1)
+  #points(out[[1]]$mpd$yr, q_vector, col=colors[[1]], pch=20)
+  if(length(out) > 1){
+    for(line in 2:length(out)){
+		
+		#create q_vector for scenarios >1 (for comparison figure)
+	    q_matrix <- matrix(NA,nrow=length(out[[line]]$mpd$q),ncol=length(out[[line]]$mpd$qt[1,]))
+  
+	    #create a matrix of qt values
+	    i<-0.
+	    j<-0.
+	    if(sum(out[[line]]$mpd$qt,na.rm=TRUE) != 0.){
+	  	  #Check if qt is a matrix of zeros
+	  	  q_matrix <- out[[line]]$mpd$qt
+	    }else{
+	  	  for(i in 1:length(out[[line]]$mpd$q)){
+	  		  for(j in 1:length(out[[line]]$mpd$qt[1,])){
+	  			  if(as.numeric(is.na(out[[line]]$mpd$qt[i,j])) ==1. ){
+	  				  #if qt[i,j] == NA (ie, TRUE==1), keep as NA (this deals with ragged matrix)
+	  				  q_matrix[i,j] <- NA
+	  			  }
+	  			  if(as.numeric(is.na(out[[line]]$mpd$qt[i,j])) ==0. ){
+	  			      #if qt[i,j] != NA (ie, FALSE==0.), replace with q[i] value
+	  				  q_matrix[i,j] <- out[[line]]$mpd$q[i] 
+	  			  }							
+	  		}
+	  	  }
+	    }
+	    # transform q_matrix into a vector of q-values and remove any NAs
+	    q_vector <- as.vector(t(q_matrix))
+	    q_vector <- as.numeric(na.omit(q_vector))
+		
+		lines(out[[line]]$mpd$yr,q_vector, col=colors[[line]], lty=lty[[line]], pch=20)
+		
+    }
+  }
+  if(!is.null(leg)){
+    legend(leg, legend=names, col=unlist(colors), lty=unlist(lty), lwd=2)
+  }
+}
+
 
 
 
@@ -1490,7 +1620,7 @@ plotRecruitmentDevsMPD <- function(out       = NULL,
   }
 }
 
-plotIndexMPDkeep <- function(scenario   = NULL,
+plotIndexMPDoldlayout <- function(scenario   = NULL,
                          out        = NULL,
                          inputs     = NULL,
                          index      = NULL,
@@ -1680,7 +1810,6 @@ plotIndexMPDkeep <- function(scenario   = NULL,
 }
 
 
-#rename this function as: plotIndexAndIndexFitMPD
 plotIndexMPD <- function(scenario   = NULL,
                          out        = NULL,
                          inputs     = NULL,
