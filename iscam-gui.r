@@ -88,7 +88,7 @@ iscam <- function(reloadScenarios      = FALSE,
 
   graphics.off()  # Destroy graphics window if it exists
 
-    if(!showgui){
+  if(!showgui){
     .loadData(reloadScenarios = TRUE)
   }else if(reloadScenarios){
     .loadData(reloadScenarios = reloadScenarios)
