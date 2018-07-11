@@ -194,13 +194,13 @@ plotTS <- function(scenario   = 1,         # Scenario number
     }
   }
   if(plotNum == 7){
-	# Survey index and model fits to survey index  
+	# Survey index and model fits to survey index
     if(plotMCMC){
       cat0(.PROJECT_NAME,"->",currFuncName,"MCMC plots for Indices not implemented. Plotting MPD.")
     }
     plotIndexMPD(scenario, out, inputs, index, colors, names, linetypes, verbose = !silent, leg = leg, showtitle = showtitle, indfixaxis=indfixaxis, add=add)
   }
-    
+
   if(plotNum == 9){
     if(plotMCMC){
       plotFMCMC(out, colors, names, ci, burnthin = burnthin, verbose = !silent, leg = leg, showtitle = showtitle, plotU=plotU, opacity=opacity, add=add)
@@ -239,7 +239,7 @@ plotTS <- function(scenario   = 1,         # Scenario number
       cat0(.PROJECT_NAME,"->",currFuncName,"No Relative biomass/USR/LRP plot available for MPD runs. Check the plot MCMC box.")
     }
   }
-  
+
   if(plotNum == 14){
     # Natural mortality
     if(plotMCMC){
@@ -250,13 +250,13 @@ plotTS <- function(scenario   = 1,         # Scenario number
   }
 
   if(plotNum == 15){
-	#Survey residuals  
+	#Survey residuals
     if(plotMCMC){
       cat0(.PROJECT_NAME,"->",currFuncName,"MCMC plots for Indices not implemented. Plotting MPD.")
     }
     plotIndexResidualsMPD(scenario, out, inputs, index, colors, names, linetypes, verbose = !silent, leg = leg, showtitle = showtitle, indfixaxis=indfixaxis, add=add)
-  }  
-  
+  }
+
   if(plotNum == 16){
     # Natural mortality
     if(plotMCMC){
@@ -512,7 +512,7 @@ plotDepletionMPD <- function(out       = NULL,
   title <- ""
   if(showtitle){
     title <- "Depletion"
-	
+
   }
   plot(out[[1]]$mpd$yrs, depl, type="l", col=colors[[1]], lty=lty[[1]], lwd=2,ylim=c(0,1.1),ylab="Depletion (sbt/sbo)", xlab="Year", main=title, las=1)
   if(length(out) > 1){
@@ -611,7 +611,7 @@ plotNaturalMortalityMPD <- function(out       = NULL,
                            lty       = NULL,
                            verbose   = FALSE,
                            showtitle = TRUE,
-                           leg         = "topright",		   
+                           leg         = "topright",
                            add       = FALSE,
                            opacity   = 90){
   # Natural mortality plot for an MPD
@@ -619,7 +619,7 @@ plotNaturalMortalityMPD <- function(out       = NULL,
   # col is a list of the colors to use in the plot
   # names is a list of the names to use in the legend
   currFuncName <- getCurrFunc()
-  
+
 
   if(is.null(out)){
     cat0(.PROJECT_NAME,"->",currFuncName,"You must supply an output vector (out).")
@@ -651,22 +651,22 @@ plotNaturalMortalityMPD <- function(out       = NULL,
 
   # Natural mortality is estimated as a matrix of nages and nyears. Age-variant M is not estimated, thus let M_vector equal column 1 of M_matrix
   out[[1]]$mpd$M_vector <- out[[1]]$mpd$M[,1]
-  
+
   yUpper <- max(out[[1]]$mpd$M_vector*2)
-  
-  
+
+
   #par(mar=c(3,6,3,3))
   title <- ""
   if(showtitle){
     title <- "Natural Mortality"
   }
   plot(out[[1]]$mpd$yr, out[[1]]$mpd$M_vector, type="l", col=colors[[1]], lty=lty[[1]], lwd=2,ylim=c(0,yUpper),ylab="Instantaneous natural mortality\n", xlab="Year", main=title, las=1)
-  
-  
+
+
   #points(out[[1]]$mpd$yr, out[[1]]$mpd$M_vector, col=colors[[1]], pch=20)
   if(length(out) > 1){
     for(line in 2:length(out)){
-	  out[[line]]$mpd$M_vector <- out[[line]]$mpd$M[,1]	
+	  out[[line]]$mpd$M_vector <- out[[line]]$mpd$M[,1]
       lines(out[[line]]$mpd$yr, out[[line]]$mpd$M_vector, type="l", col=colors[[line]], lty=lty[[line]], lwd=2, ylim=c(0,yUpper))
       points(out[[line]]$mpd$yr, out[[line]]$mpd$M_vector, col=colors[[line]], pch=20)
     }
@@ -792,7 +792,7 @@ plotSurveyq <-    function(out       = NULL,
                            lty       = NULL,
                            verbose   = FALSE,
                            showtitle = TRUE,
-                           leg         = "topright",		   
+                           leg         = "topright",
                            add       = FALSE,
                            opacity   = 90){
   # MPD esitmates of survey q
@@ -800,7 +800,7 @@ plotSurveyq <-    function(out       = NULL,
   # col is a list of the colors to use in the plot
   # names is a list of the names to use in the legend
   currFuncName <- getCurrFunc()
-  
+
 
   if(is.null(out)){
     cat0(.PROJECT_NAME,"->",currFuncName,"You must supply an output vector (out).")
@@ -833,7 +833,7 @@ plotSurveyq <-    function(out       = NULL,
   # Survey q is estimated a single value (MPD esitmate) for each survey time series, eg, Survey 1, Survey 2, etc.
   # check if admb is filling vector qt with q-values. If no, fill qt with q-values.
   q_matrix <- matrix(NA,nrow=length(out[[1]]$mpd$q),ncol=length(out[[1]]$mpd$qt[1,]))
-  
+
   #create a matrix of qt values
   i<-0.
   j<-0.
@@ -849,8 +849,8 @@ plotSurveyq <-    function(out       = NULL,
 			  }
 			  if(as.numeric(is.na(out[[1]]$mpd$qt[i,j])) ==0. ){
 			      #if qt[i,j] != NA (ie, FALSE==0.), replace with q[i] value
-				  q_matrix[i,j] <- out[[1]]$mpd$q[i] 
-			  }							
+				  q_matrix[i,j] <- out[[1]]$mpd$q[i]
+			  }
 		}
 	}
   }
@@ -859,7 +859,7 @@ plotSurveyq <-    function(out       = NULL,
   q_vector <- as.numeric(na.omit(q_vector))
 
   yUpper <- 2
-  
+
   #par(mar=c(3,6,3,3))
   title <- ""
   if(showtitle){
@@ -870,10 +870,10 @@ plotSurveyq <-    function(out       = NULL,
   #points(out[[1]]$mpd$yr, q_vector, col=colors[[1]], pch=20)
   if(length(out) > 1){
     for(line in 2:length(out)){
-		
+
 		#create q_vector for scenarios >1 (for comparison figure)
 	    q_matrix <- matrix(NA,nrow=length(out[[line]]$mpd$q),ncol=length(out[[line]]$mpd$qt[1,]))
-  
+
 	    #create a matrix of qt values
 	    i<-0.
 	    j<-0.
@@ -889,17 +889,17 @@ plotSurveyq <-    function(out       = NULL,
 	  			  }
 	  			  if(as.numeric(is.na(out[[line]]$mpd$qt[i,j])) ==0. ){
 	  			      #if qt[i,j] != NA (ie, FALSE==0.), replace with q[i] value
-	  				  q_matrix[i,j] <- out[[line]]$mpd$q[i] 
-	  			  }							
+	  				  q_matrix[i,j] <- out[[line]]$mpd$q[i]
+	  			  }
 	  		}
 	  	  }
 	    }
 	    # transform q_matrix into a vector of q-values and remove any NAs
 	    q_vector <- as.vector(t(q_matrix))
 	    q_vector <- as.numeric(na.omit(q_vector))
-		
+
 		lines(out[[line]]$mpd$yr,q_vector, col=colors[[line]], lty=lty[[line]], pch=20)
-		
+
     }
   }
   if(!is.null(leg)){
@@ -1777,7 +1777,7 @@ plotIndexMPDoldlayout <- function(scenario   = NULL,
     ymax <- max(inputindices$it + cv * inputindices$it)
     xlim <- c(xmin, xmax)
     ylim <- c(0, ymax)
-	
+
     matplot(yrs, mat, type = "l", lwd = 2, lty = unlist(lty), col = unlist(colors),
             las = 1, main = title, xlim = xlim, ylim = ylim, xlab="",
             ylab="", axes=FALSE)
@@ -1798,9 +1798,9 @@ plotIndexMPDoldlayout <- function(scenario   = NULL,
   axis(1, at     = seq(min(xlim),max(xlim)),
           labels = seq(min(xlim),max(xlim)))
   axis(2)
-  
+
   box()
-  
+
   mtext("Year", 1, line=2)
   mtext("x 1,000 tonnes", 2, line=2)
 
@@ -1926,7 +1926,7 @@ plotIndexMPD <- function(scenario   = NULL,
         }
       }
       if(!is.na(gearindreal)){
-		inputindices <- as.data.frame(inputs[[model]]$indices[[gearindreal]])	#raw survey index
+        inputindices <- as.data.frame(inputs[[model]]$indices[[gearindreal]])	#raw survey index
         outputit     <- as.data.frame(out[[model]]$mpd$it_hat)	#raw survey index
         if(ncol(outputit) == 1){
           dat          <- as.numeric(outputit[,1])
@@ -1967,7 +1967,6 @@ plotIndexMPD <- function(scenario   = NULL,
     ymax <- max(inputindices$it + cv * inputindices$it)
     xlim <- c(xmin, xmax)
     ylim <- c(0, ymax)
-	
     matplot(yrs, mat, type = "l", lwd = 2, lty = unlist(lty), col = unlist(colors),
             las = 1, main = title, xlim = xlim, ylim = ylim, xlab="",
             ylab="", axes=FALSE)
@@ -1982,18 +1981,18 @@ plotIndexMPD <- function(scenario   = NULL,
             xlab="", ylab="", axes=FALSE)
   }
   points(yrs, inputindices$it, pch = 19)
-#  arrows(yrs, inputindices$it + cv * inputindices$it ,yrs, inputindices$it - cv * inputindices$it,
-#         code = 3, angle = 90, length = 0.01, col = "black")
+  arrows(yrs, inputindices$it + cv * inputindices$it ,yrs, inputindices$it - cv * inputindices$it,
+         code = 3, angle = 90, length = 0.01, col = "black")
 
-#  axis(1, at     = seq(min(xlim),max(xlim)),
-  #        labels = seq(min(xlim),max(xlim)))
-#  axis(2)
-  
+  axis(1, at     = seq(min(xlim),max(xlim)),
+       labels = seq(min(xlim),max(xlim)))
+  axis(2)
+
   axis( side=1 )
   axis( side=2)#, las=.VIEWLAS )
 
   box()
-  
+
   mtext("Year", 1, line=2)
   mtext("x 1,000 tonnes", 2, line=2)
 
@@ -2093,23 +2092,23 @@ plotIndexResidualsMPD <- function(scenario   = NULL,
     return(NULL)
   }
 
-  # Get survey residuals ( $epsilon ) from .rep 
+  # Get survey residuals ( $epsilon ) from .rep
   #		match $epsilon with correct years in $indices
   residuals <- out[[1]]$mpd$epsilon
   residlist <- NULL
   for(i in 1:nrow(residuals)){
-	  residlist<-list(as.matrix(out[[1]]$mpd$epsilon[i,]),as.matrix(out[[1]]$mpd$epsilon[2,]))	
+	  residlist<-list(as.matrix(out[[1]]$mpd$epsilon[i,]),as.matrix(out[[1]]$mpd$epsilon[2,]))
   }
-  
+
   currindexname <- inputs[[1]]$gearNames[index]
   mat  <- NULL
-  mat2 <- NULL	
+  mat2 <- NULL
   for(model in 1:length(out)){
     # For each model, match the data with the gear name 'currgearname'
     # If it does not match, it will be skipped
     indexnames <- inputs[[1]]$gearNames[index]
     gearnum <- match(currindexname, inputs[[1]]$gearNames)
-	
+
     if(is.na(gearnum)){
       # Remove the gear from the legend lists, using the property that if a list
       # element is set to NULL, it will be removed completely from the list.
@@ -2119,12 +2118,12 @@ plotIndexResidualsMPD <- function(scenario   = NULL,
     }else{
       # Get correct ind for the given gear
       indices <- inputs[[model]]$indices
-     	
+
       for(ind in 1:length(indices)){
         indexmat  <- as.data.frame(indices[[ind]])
 		residmat  <- as.data.frame(residlist[[ind]])
         gearindex <- unique(indexmat$gear)
-		
+
         if(gearindex == gearnum){
           gearindreal <- ind
         }
@@ -2145,7 +2144,7 @@ plotIndexResidualsMPD <- function(scenario   = NULL,
         cv           <- 1 / inputindices$wt
         dat          <- dat[!is.na(dat)]
         mat          <- cbind(mat, dat)
-		
+
         dat2         <- dat2[!is.na(dat2)]
         mat2         <- cbind(mat2, dat2)
 
@@ -2181,13 +2180,13 @@ plotIndexResidualsMPD <- function(scenario   = NULL,
 	ymax <- 1.2	#max(residvec)+max(residvec)
     xlim <- c(xmin, xmax)
     ylim <- c(ymin, ymax)
-	
+
     matplot(yrs, mat2, type = "h", lwd = 2, lty = unlist(lty), col = unlist(colors),
             las = 1, main = title, xlim = xlim, ylim = ylim, xlab="",
             ylab="", axes=FALSE)
-	
+
 	abline(h=0, lty=2)
-	
+
   }else{
     xmin <- min(yrs)
     xmax <- max(yrs)
@@ -2206,11 +2205,11 @@ plotIndexResidualsMPD <- function(scenario   = NULL,
   #axis(1, at     = seq(min(xlim),max(xlim)),
   #        labels = seq(min(xlim),max(xlim)))
   #axis(2)
-  
-  
+
+
   axis( side=1 )
   axis( side=2)#, las=.VIEWLAS )
-  
+
   box()
   mtext("Year", 1, line=2)
   mtext("Survey residuals", 2, line=2)
