@@ -126,8 +126,15 @@ iscam <- function(reloadScenarios      = FALSE,
     scenarioList   <<- as.numeric(rownames(viewHeader))
 
     createWin(.MAIN_GUI_DEF_FILE,env=.GlobalEnv)
-    winList <- c(entryScenario=1)
+    ## Add the default scenario number (1) and the historic LRP and USR line values
+    ##  to the GUI (See ScenarioInfo.txt)
+    winList <- c(entryScenario = 1,
+                 entryBlowerStart = op[[scenario]]$inputs$blowerstart,
+                 entryBlowerEnd = op[[scenario]]$inputs$blowerend,
+                 entryBupperStart = op[[scenario]]$inputs$bupperstart,
+                 entryBupperEnd = op[[scenario]]$inputs$bupperend)
     try(setWinVal(winList), silent=silent)
+
 
     # TODO: Grey out currently unimplemented stuff
     #setWidgetState("","disabled")
@@ -254,6 +261,11 @@ iscam <- function(reloadScenarios      = FALSE,
                                                                 showtitle=showtitle,
                                                                 showB0Ref=val$showB0Ref,
                                                                 showBMSYRef=val$showBMSYRef,
+                                                                showBHist=val$showHistoricalRef,
+                                                                BHist=c(val$entryBlowerStart,
+                                                                        val$entryBlowerEnd,
+                                                                        val$entryBupperStart,
+                                                                        val$entryBupperEnd),
                                                                 yUpper=val$entryYbioSingle,
                                                                 opacity=opacity)},
              "sTSSpawningBiomassByArea"               = {plotTS(s,

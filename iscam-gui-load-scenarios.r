@@ -259,7 +259,7 @@
     # Ignore errors, since the scenario may not have been run, and therefore no last command run file exists.
   })
 
-  # Try to load the scenario's scenario info file.
+  ## Try to load the scenario's scenario info file.
   fnScenarioInfo <-  file.path(dired,.SCENARIO_INFO_FILE_NAME)
   tmp$names$sensitivityGroup       <- fnScenarioInfo
   .createScenarioInfoFile(dired = dired, default = TRUE)
@@ -267,11 +267,11 @@
     tmp <- .readScenarioInfoFile(dired = dired, sList = tmp)
   }, warning = function(war){
     cat0(.PROJECT_NAME,"->",currFuncName,": ",.SCENARIO_INFO_FILE_NAME," file not found, or problem loading it. '",fnScenarioInfo,"'")
-    # Create the file since it doesn't exist or is corrupted
+    ## Create the file since it doesn't exist or is corrupted
     tmp$fileSuccess$sensitivityGroup <- FALSE
-   }, error = function(err){
-    # Create the file since it doesn't exist or is corrupted
-     cat0(.PROJECT_NAME,"->",currFuncName,": ",.SCENARIO_INFO_FILE_NAME," file not found, or problem loading it. '",fnScenarioInfo,"'")
+  }, error = function(err){
+    ## Create the file since it doesn't exist or is corrupted
+    cat0(.PROJECT_NAME,"->",currFuncName,": ",.SCENARIO_INFO_FILE_NAME," file not found, or problem loading it. '",fnScenarioInfo,"'")
     tmp$fileSuccess$sensitivityGroup <- FALSE
   })
 
@@ -335,8 +335,8 @@
 }
 
 .readScenarioInfoFile <- function(dired = NULL, sList = NULL){
-  # Reads in the Scenario Info file. Any additions to it need to be accounted for here
-  # Any lines beginning with a hash # will be ignored
+  ## Reads in the Scenario Info file. Any additions to it need to be accounted for here
+  ## Any lines beginning with a hash # will be ignored
   currFuncName <- getCurrFunc()
   if(is.null(dired)){
     cat0(.PROJECT_NAME,"->",currFuncName,"You must supply a directory name (dired)")
@@ -352,6 +352,11 @@
   sList$fileSuccess$sensitivityGroup <- TRUE
   sList$inputs$color <- tmp[2,]
   sList$inputs$linetype <- tmp[3,] # plotting linetype
+  ## The following could be NAs if using an older ScenarioInfo file
+  sList$inputs$blowerstart <- tmp[4,]
+  sList$inputs$blowerend <- tmp[5,]
+  sList$inputs$bupperstart <- tmp[6,]
+  sList$inputs$bupperend <- tmp[7,]
   return(sList)
 }
 
@@ -376,7 +381,16 @@
                          .PLOT_COLOR_TEXT,
                          .DEFAULT_PLOT_COLOR,
                          .LINETYPE_TEXT,
-                         .DEFAULT_LINETYPE))
+                         .DEFAULT_LINETYPE,
+                         .BLOWER_START_YEAR_TEXT,
+                         .BLOWER_START_YEAR,
+                         .BLOWER_END_YEAR_TEXT,
+                         .BLOWER_END_YEAR,
+                         .BUPPER_START_YEAR_TEXT,
+                         .BUPPER_START_YEAR,
+                         .BUPPER_END_YEAR_TEXT,
+                         .BUPPER_END_YEAR
+                         ))
       writeFile <- TRUE
     }
   }else{

@@ -109,7 +109,7 @@ grid 3 1 padx=10 pady=5 sticky=W
                     check name=showB0Ref checked=T text="B0" function=.subView sticky=W
                     check name=showBMSYRef checked=F text="BMSY" function=.subView sticky=W
                     grid 2 1 sticky=N
-                         label text="Historical" font="bold 10" sticky=W
+                         check name=showHistoricalRef checked=F text="Historical (mean of year range)" function=.subView font="bold 10" sticky=W
                          grid 3 3 sticky=N
                               null
                               label text="Start Year" font="10" sticky=WE
