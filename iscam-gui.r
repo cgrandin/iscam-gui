@@ -16,7 +16,7 @@
 #**********************************************************************************
 
 removeAllExcept <- function(vars  = c("op","sens","bio","catch","trawlbio")){
-  # Removes everyobject in the workspace except for what is in the vars list.
+  # Removes every object in the workspace except for what is in the vars list.
   # Upon finishing, the workspace will contain whatever is in the vars list,
   #  plus the objects 'removeAllExcept' (this function) and 'modelLoaded'.
   # That tells the software that the model has already been loaded.
