@@ -601,9 +601,17 @@ plotPairs <- function(mcmcData = NULL, burnthin = list(0,1), showtitle = TRUE, l
   pairs(mcmcData, labels=names, cex.labels=1.0, pch=".", upper.panel = panel.smooth, diag.panel = panel.hist, lower.panel = panel.smooth, gap=0.0)
 }
 
-plotPriorsPosts <- function(mcmcData, mpdData, inputs = NULL, burnthin = list(0,1), color = 1, opacity = 30, showtitle = TRUE, priorsonly=FALSE, latexnames=FALSE){
-  # Produce a grid of the parameters' posteriors with their priors overlaid.
-  # mpdData is used to get the MLE estimates for each parameter
+plotPriorsPosts <- function(mcmcData,
+                            mpdData,
+                            inputs = NULL,
+                            burnthin = list(0,1),
+                            color = 1,
+                            opacity = 30,
+                            showtitle = TRUE,
+                            priorsonly = FALSE,
+                            latexnames = FALSE){
+  ## Produce a grid of the parameters' posteriors with their priors overlaid.
+  ## mpdData is used to get the MLE estimates for each parameter
 	oldPar	<- par(no.readonly=T)
   on.exit(par(oldPar))
 
@@ -622,19 +630,19 @@ plotPriorsPosts <- function(mcmcData, mpdData, inputs = NULL, burnthin = list(0,
     cat0(.PROJECT_NAME,"->",currFuncName,"Burnin value exceeds mcmc chain length.\n")
     return(NULL)
   }
-  # The values in the control file (inputs$control$param) for each of priorN are:
-  # 1. ival  = initial value
-  # 2. lb    = lower bound
-  # 3. ub    = upper bound
-  # 4. phz   = ADMB phase
-  # 5. prior = prior distribution funnction
-  #             0 = Uniform
-  #             1 = normal    (p1=mu,p2=sig)
-  #             2 = lognormal (p1=log(mu),p2=sig)
-  #             3 = beta      (p1=alpha,p2=beta)
-  #             4 = gamma     (p1=alpha,p2=beta)
-  # 6. p1 (defined by 5 above)
-  # 7. p2 (defined by 5 above)
+  ## The values in the control file (inputs$control$param) for each of priorN are:
+  ## 1. ival  = initial value
+  ## 2. lb    = lower bound
+  ## 3. ub    = upper bound
+  ## 4. phz   = ADMB phase
+  ## 5. prior = prior distribution funnction
+  ##             0 = Uniform
+  ##             1 = normal    (p1=mu,p2=sig)
+  ##             2 = lognormal (p1=log(mu),p2=sig)
+  ##             3 = beta      (p1=alpha,p2=beta)
+  ##             4 = gamma     (p1=alpha,p2=beta)
+  ## 6. p1 (defined by 5 above)
+  ## 7. p2 (defined by 5 above)
   fNames <- c(dunif,dnorm,dlnorm,dbeta,dgamma)
 
   numParams <- ncol(mcmcData)
@@ -656,8 +664,8 @@ plotPriorsPosts <- function(mcmcData, mpdData, inputs = NULL, burnthin = list(0,
   priorNames <- rownames(priorSpecs)
   postNames <- names(mcmcData)
 
-  # Add the selectivity parameters to the prior specs table here
-  # inputs$control$sel
+  ## Add the selectivity parameters to the prior specs table here
+  ## inputs$control$sel
 
   if(length(grep("^m[12]$",postNames)) == 2){
     # Remove the single 'm' and add the two m's, log_m1 and log_m2 to the prior paramSpecs table
@@ -932,10 +940,10 @@ plotGelman <- function(mcmcData, nchains = 2, burnthin=burnthin, showtitle = sho
   mtext("Shrink factor", side=2, outer=TRUE)
 }
 
-gelman.plot <- function (x, bin.width = 10, max.bins = 50, confidence = 0.95, 
-    transform = FALSE, autoburnin = TRUE, auto.layout = TRUE, 
-    ask, col = 1:2, lty = 1:2, xlab = "last iteration in chain", 
-    ylab = "shrink factor", type = "l", ...) 
+gelman.plot <- function (x, bin.width = 10, max.bins = 50, confidence = 0.95,
+    transform = FALSE, autoburnin = TRUE, auto.layout = TRUE,
+    ask, col = 1:2, lty = 1:2, xlab = "last iteration in chain",
+    ylab = "shrink factor", type = "l", ...)
 {
     if (missing(ask)) {
         ask <- if (is.R()) {
@@ -948,26 +956,26 @@ gelman.plot <- function (x, bin.width = 10, max.bins = 50, confidence = 0.95,
     x <- as.mcmc.list(x)
     oldpar <- NULL
     on.exit(par(oldpar))
-    if (auto.layout) 
-        oldpar <- par(mfrow = set.mfrow(Nchains = nchain(x), 
+    if (auto.layout)
+        oldpar <- par(mfrow = set.mfrow(Nchains = nchain(x),
             Nparms = nvar(x)))
-    y <- gelman.preplot(x, bin.width = bin.width, max.bins = max.bins, 
+    y <- gelman.preplot(x, bin.width = bin.width, max.bins = max.bins,
         confidence = confidence, transform = transform, autoburnin = autoburnin)
-    all.na <- apply(is.na(y$shrink[, , 1, drop = FALSE]), 2, 
+    all.na <- apply(is.na(y$shrink[, , 1, drop = FALSE]), 2,
         all)
-    if (!any(all.na)) 
+    if (!any(all.na))
         for (j in 1:nvar(x)) {
-            matplot(y$last.iter, y$shrink[, j, ], col = col, 
-                lty = lty, xlab = xlab, ylab = ylab, type = type, 
+            matplot(y$last.iter, y$shrink[, j, ], col = col,
+                lty = lty, xlab = xlab, ylab = ylab, type = type,
                 ...)
             abline(h = 1)
             ymax <- max(c(1, y$shrink[, j, ]), na.rm = TRUE)
             #leg <- dimnames(y$shrink)[[3]]
             xmax <- max(y$last.iter)
-            #legend(xmax, ymax, legend = leg, lty = lty, bty = "n", 
+            #legend(xmax, ymax, legend = leg, lty = lty, bty = "n",
             #    col = col, xjust = 1, yjust = 1)
             #title(main = varnames(x)[j])
-            if (j == 1) 
+            if (j == 1)
                 oldpar <- c(oldpar, par(ask = ask))
         }
     return(invisible(y))
@@ -976,14 +984,14 @@ gelman.plot <- function (x, bin.width = 10, max.bins = 50, confidence = 0.95,
 gelman.preplot <-
   function (x, bin.width = bin.width, max.bins = max.bins,
             confidence = confidence, transform = transform,
-            autoburnin = autoburnin) 
+            autoburnin = autoburnin)
 {
   x <- as.mcmc.list(x)
-  if (niter(x) <= 50) 
+  if (niter(x) <= 50)
     stop("Less than 50 iterations in chain")
   nbin <- min(floor((niter(x) - 50)/thin(x)), max.bins)
   binw <- floor((niter(x) - 50)/nbin)
-  last.iter <- c(seq(from = start(x) + 50 * thin(x), by = binw * 
+  last.iter <- c(seq(from = start(x) + 50 * thin(x), by = binw *
                      thin(x), length = nbin), end(x))
   shrink <- array(dim = c(nbin + 1, nvar(x), 2))
   dimnames(shrink) <- list(last.iter, varnames(x),
@@ -991,7 +999,7 @@ gelman.preplot <-
                                              sep = ""))
                            )
   for (i in 1:(nbin + 1)) {
-    shrink[i, , ] <- gelman.diag(window(x, end = last.iter[i]), 
+    shrink[i, , ] <- gelman.diag(window(x, end = last.iter[i]),
                                  confidence = confidence,
                                  transform = transform,
                                  autoburnin = autoburnin)$psrf
