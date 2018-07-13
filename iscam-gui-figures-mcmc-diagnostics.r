@@ -693,16 +693,28 @@ plotPriorsPosts <- function(mcmcData,
   par(mfrow = nside, oma = c(2,3,1,1), mai = c(0.2,0.4,0.3,0.2))
 
   for(postInd in 1:ncol(mcmcData)){
-    # Find the parameter name from mcmcData in the priorSpecs table
-    # and plot if it is in the paramSpecs table
-    # Make sure that the name matches exactly by adding anchors ^ and $ to the pattern
-    # and log_ is optional
+    ## Find the parameter name from mcmcData in the priorSpecs table
+    ## and plot if it is in the paramSpecs table
+    ## Make sure that the name matches exactly by adding anchors ^ and $ to the pattern
+    ##  and log_ is optional
     postName <- names(mcmcData)[postInd]
     priorPattern <- paste0("^[log_]*",postName,"$")
     if(postName == "m1"){
       priorPattern <- "log_m"
     }
     priorInd <- grep(priorPattern, priorNames)
+    ## Hack - check for differing names for rbar and rinit
+    if(length(priorInd) == 0){
+      if(postName == "rbar"){
+        postName = "avgrec"
+      }
+      if(postName == "rinit"){
+        postName = "recinit"
+      }
+      priorPattern <- paste0("^[log_]*",postName,"$")
+      priorInd <- grep(priorPattern, priorNames)
+    }
+
     if(length(priorInd) > 0){
       # The posterior name is in the list of priors..
       dat <- mcmcData[,postInd]
@@ -728,10 +740,24 @@ plotPriorsPosts <- function(mcmcData,
       }else if(length(grep(qpat,pName)) > 0){
         num <- as.numeric(sub(qpat, "\\1", pName))
         mle <- mpdData$q[num]
+      }else if(postName == "avgrec"){
+        mle <- mpdData["rbar"]
+      }else if(postName == "recinit"){
+        mle <- mpdData["rinit"]
       }else{
         mle <- mpdData[postName]
       }
+
+      ## Hack!
+      if(priorNames[priorInd] == "log_avgrec"){
+        priorNames[priorInd] <- "log_rbar"
+      }
+      if(priorNames[priorInd] == "log_recinit"){
+        priorNames[priorInd] <- "log_rinit"
+      }
+
       xx <- list(p = dat, p1 = specs[3], p2 = specs[4], fn = priorfn, nm = priorNames[priorInd], mle=mle)
+
       par(mar=.MCMC_MARGINS)
       if(latexnames){
         xx$nm <- getLatexName(xx$nm)

@@ -890,12 +890,17 @@ readControl <- function(file = NULL, ngears = NULL, nagears = NULL, verbose = FA
   paramNames <- vector()
   # Lazy matching with # so that the first instance matches, not any other
   #pattern <- "^.*#[[:blank:]]*([[:alnum:]]+_*[[:alnum:]]*) +.*"
-  pattern <- "^.*?#([[:alnum:]]+_*[[:alnum:]]*).*"
+  pattern <- "^.*?# *([[:alnum:]]+[_.]*[[:alnum:]]*).*"
   for(paramName in 1:npar){
     # Each parameter line in dat which starts at index 2,
     # retrieve the parameter name for that line
     paramNames[paramName] <- sub(pattern,"\\1",dat[paramName+1])
   }
+  ## Fix any parameter names that have a period in them. Change those to underscores
+  paramNames <- gsub("\\.", "_", paramNames)
+  ## Change steepness to h if it is present
+  paramNames <- gsub("steepness", "h", paramNames)
+
   # Now that parameter names are stored, parse the file.
   # remove comments which come at the end of a line
   dat <- gsub("#.*","",dat)
