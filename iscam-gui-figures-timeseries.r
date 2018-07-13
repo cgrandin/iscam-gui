@@ -202,6 +202,7 @@ plotTS <- function(scenario   = 1,         # Scenario number
                      leg = leg,
                      showtitle = showtitle,
                      showB0Ref = showB0Ref,
+                     showBMSYRef = showBMSYRef,
                      showBHist = showBHist,
                      BHist = BHist,
                      yUpper = yUpper,
@@ -323,20 +324,21 @@ plotTS <- function(scenario   = 1,         # Scenario number
   return(TRUE)
 }
 
-plotBiomassMPD <- function(out       = NULL,
-                           colors    = NULL,
-                           names     = NULL,
-                           lty       = NULL,
-                           verbose   = FALSE,
-                           showtitle = TRUE,
-                           showB0Ref = TRUE,
-                           showBHist = FALSE,    ## Show historical reference point lines
-                           BHist     = NA,       ## If showBHist=TRUE, this length 4 vector is used for the lines
-                                                 ## It is Blower start & end, Bupper start & end
-                           leg       = "topright",
-                           add       = FALSE,
-                           yUpper    = NA,   # Upper limit for the y axis on a biomass plot. If NA data limits used
-                           opacity   = 90){
+plotBiomassMPD <- function(out         = NULL,
+                           colors      = NULL,
+                           names       = NULL,
+                           lty         = NULL,
+                           verbose     = FALSE,
+                           showtitle   = TRUE,
+                           showB0Ref   = FALSE,
+                           showBMSYRef = FALSE,
+                           showBHist   = FALSE,    ## Show historical reference point lines
+                           BHist       = NA,       ## If showBHist=TRUE, this length 4 vector is used for the lines
+                                                   ## It is Blower start & end, Bupper start & end
+                           leg         = "topright",
+                           add         = FALSE,
+                           yUpper      = NA,   # Upper limit for the y axis on a biomass plot. If NA data limits used
+                           opacity     = 90){
   # Biomass plot for an MPD
   # out is a list of the mpd outputs to show on the plot
   # col is a list of the colors to use in the plot
@@ -369,7 +371,7 @@ plotBiomassMPD <- function(out       = NULL,
   }
 
   # This is required on biomass plots to make the y-axis label visible, only 2nd item is +1 from default
-  par(mar=c(5.1,5.1,4.1,2.1))
+  par(mar=c(5.1,5.1,4.1,3.1))
 
   if(is.na(yUpper)){
     yUpper <- max(out[[1]]$mpd$sbt, out[[1]]$mpd$sbo)
@@ -401,10 +403,46 @@ plotBiomassMPD <- function(out       = NULL,
 
   if(showB0Ref){
     ## Add 0.2B0, and 0.4B0 lines for the reference case [[1]] to plot
-    abline(h = 0.2 * out[[1]]$mpd$sbo, col = "red", lty = 2)
-    mtext("0.2B0", 4, at = 0.2 * out[[1]]$mpd$sbo, col = "red", las = 1)
-    abline(h = 0.4 * out[[1]]$mpd$sbo, col = "green", lty = 2)
-    mtext("0.4B0", 4, at = 0.4 * out[[1]]$mpd$sbo, col = "green", las = 1)
+    abline(h = 0.2 * out[[1]]$mpd$sbo,
+           col = "red",
+           lty = 2,
+           lwd = 2)
+    mtext(expression("0.2" ~ B[0]),
+          4,
+          at = 0.2 * out[[1]]$mpd$sbo,
+          col = "red",
+          las = 1)
+    abline(h = 0.4 * out[[1]]$mpd$sbo,
+           col = "green",
+           lty = 2,
+           lwd = 2)
+    mtext(expression("0.4" ~ B[0]),
+          4,
+          at = 0.4 * out[[1]]$mpd$sbo,
+          col = "green",
+          las = 1)
+  }
+
+  if(showBMSYRef){
+    ## Add 0.4BMSY, and 0.8BMSY lines for the reference case [[1]] to plot
+    abline(h = 0.4 * out[[1]]$mpd$bmsy,
+           col = "red",
+           lty = 2,
+           lwd = 2)
+    mtext(expression("0.2" ~ B[MSY]),
+          4,
+          at = 0.4 * out[[1]]$mpd$bmsy,
+          col = "red",
+          las = 1)
+    abline(h = 0.8 * out[[1]]$mpd$bmsy,
+           col = "green",
+           lty = 2,
+           lwd = 2)
+    mtext(expression("0.4" ~ B[MSY]),
+          4,
+          at = 0.8 * out[[1]]$mpd$bmsy,
+          col = "green",
+          las = 1)
   }
 
   if(showBHist){
@@ -419,22 +457,40 @@ plotBiomassMPD <- function(out       = NULL,
         cat("Years possible are:\n", yr)
       }else{
         blower <- mean(sbt[yr %in% BHist[1]:BHist[2]])
-        abline(h = blower, col = "blue", lty = 1)
-        mtext("Bmin", 4, at = blower, col = "blue", las = 1)
+        abline(h = blower,
+               col = "red",
+               lty = 2,
+               lwd = 2)
+        mtext(expression(B[min]),
+              4,
+              at = blower,
+              col = "red",
+              las = 1)
       }
 
       if(!(BHist[3] %in% yr) | !(BHist[4] %in% yr)){
-        cat("Cannot plot Bmax historical reference point line. Year out of range.\n")
+        cat("Cannot plot USR historical reference point line. Year out of range.\n")
         cat("Years possible are:\n", yr)
       }else{
         bupper <- mean(sbt[yr %in% BHist[3]:BHist[4]])
-        abline(h = bupper, col = "blue", lty = 1)
-        mtext("Bmax", 4, at = bupper, col = "blue", las = 1)
+        abline(h = bupper,
+               col = "green",
+               lty = 2,
+               lwd = 2)
+        mtext("USR",
+              4,
+              at = bupper,
+              col = "green",
+              las = 1)
       }
     }
   }
   if(!is.null(leg)){
-    legend(leg, legend=names, col=unlist(colors), lty=unlist(lty), lwd=2)
+    legend(leg,
+           legend = names,
+           col = unlist(colors),
+           lty = unlist(lty),
+           lwd = 2)
   }
 }
 
@@ -492,7 +548,7 @@ plotBiomassMCMC <- function(out         = NULL,
   thin <- burnthin[[2]]
 
   # This is required on biomass plots to make the y-axis label visible, only 2nd item is +1 from default
-  par(mar=c(5.1,5.1,4.1,2.1))
+  par(mar=c(5.1,5.1,4.1,3.1))
 
   # Calculate quantiles for the posterior data if an MCMC is to be plotted
   quants <- vector("list", length(out))
@@ -533,18 +589,18 @@ plotBiomassMCMC <- function(out         = NULL,
   if(showB0Ref){
     abline(h = 0.2 * boquants[[1]][2],
            col = "red",
-           lty = 1,
+           lty = 2,
            lwd = 2)  # sbo1 set above in loop through models
-    mtext("0.2B0",
+    mtext(expression("0.2" ~ B[0]),
           4,
           at = 0.2 * boquants[[1]][2],
           col = "red",
           las = 1)
     abline(h = 0.4 * boquants[[1]][2],
            col = "green",
-           lty = 1,
+           lty = 2,
            lwd = 2)
-    mtext("0.4B0",
+    mtext(expression("0.4" ~ B[0]),
           4,
           at = 0.4 * boquants[[1]][2],
           col = "green",
@@ -557,7 +613,7 @@ plotBiomassMCMC <- function(out         = NULL,
            col = "red",
            lty = 2,
            lwd = 2)
-    mtext("0.4BMSY",
+    mtext(expression("0.4" ~ B[MSY]),
           4,
           at = 0.4 * bmsyquants[2],
           col = "red",
@@ -566,7 +622,7 @@ plotBiomassMCMC <- function(out         = NULL,
            col = "green",
            lty = 2,
            lwd = 2)
-    mtext("0.8BMSY",
+    mtext(expression("0.8" ~ B[MSY]),
           4,
           at = 0.8 * bmsyquants[2],
           col = "green",
@@ -585,17 +641,31 @@ plotBiomassMCMC <- function(out         = NULL,
         cat("Years possible are:\n", yr)
       }else{
         blower <- mean(sbt[2,][yr %in% BHist[1]:BHist[2]])
-        abline(h = blower, col = "blue", lty = 1)
-        mtext("Bmin", 4, at = blower, col = "blue", las = 1)
+        abline(h = blower,
+               col = "red",
+               lty = 2,
+               lwd = 2)
+        mtext(expression(B[min]),
+              4,
+              at = blower,
+              col = "red",
+              las = 1)
       }
 
       if(!(BHist[3] %in% yr) | !(BHist[4] %in% yr)){
-        cat("Cannot plot Bmax historical reference point line. Year out of range.\n")
+        cat("Cannot plot USR historical reference point line. Year out of range.\n")
         cat("Years possible are:\n", yr)
       }else{
         bupper <- mean(sbt[2,][yr %in% BHist[3]:BHist[4]])
-        abline(h = bupper, col = "blue", lty = 1)
-        mtext("Bmax", 4, at = bupper, col = "blue", las = 1)
+        abline(h = bupper,
+               col = "green",
+               lty = 2,
+               lwd = 2)
+        mtext("USR",
+              4,
+              at = bupper,
+              col = "green",
+              las = 1)
       }
 
     }
