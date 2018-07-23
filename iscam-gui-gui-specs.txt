@@ -385,7 +385,7 @@ grid 3 1 padx=10 pady=5 sticky=W
 #--                      Notebook Tab: Retrospectives              --#
 #--------------------------------------------------------------------#
 
-     grid 8 3 sticky=N relief=raised
+     grid 9 3 sticky=N relief=raised
           #1
           label text="Retrospectives"     font="bold 10" sticky=NW
           null
@@ -411,13 +411,17 @@ grid 3 1 padx=10 pady=5 sticky=W
           null
           null
           #7
+          null
+          null
+          check name=delaydiff checked=T function=.subView text="Delay difference model(s)"
+          #8
           entry name=entryRetro width=5 pady=5 value=5 entryfont="10" sticky=E
           label text="Years" font="12" width=5 pady=5 sticky=N
-          button name=runRetros function=.subView action="runRetros"     width=15 padx=5 pady=5 text="Run retros"  fg="blue"
-          #8
+          button name=runRetros function=.subView action="runRetros" width=30 padx=5 pady=5 text="Run chosen scenario retrospectives"  fg="blue"
+          #9
           null
           null
-          button name=runAllRetros function=.subView action="runAllRetros"     width=15 padx=5 pady=5 text="Run All retros"  fg="blue"
+          button name=runAllRetros function=.subView action="runAllRetros" width=30 padx=5 pady=5 text="Run all scenarios retrospectives"  fg="blue"
 
 #--------------------------------------------------------------------#
 #--                      Notebook Tab: Catch                       --#

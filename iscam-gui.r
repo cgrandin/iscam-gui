@@ -707,6 +707,17 @@ iscam <- function(reloadScenarios      = FALSE,
          "runAllRetros" = {
            .runAllRetros()
          },
+         "runDDRetros" = {
+           .runRetros(delaydiff = TRUE)
+           # Reload this scenario, which does a recursive load of the retrospective runs
+           cat0(.PROJECT_NAME,"->",currFuncName,"Loading output from retrospective runs..\n")
+           op[[scenario]] <<- .loadScenario(scenario, dired=op[[scenario]]$names$dir)
+           .updateGUIStamps()
+           alarm() # Sound an alarm to notify user that runs are finished
+         },
+         "runAllDDRetros" = {
+           .runAllRetros(delaydiff = TRUE)
+         },
          "saveCurrFigure" = {
            .doPlots(savefig=TRUE)
          },
@@ -930,15 +941,18 @@ iscam <- function(reloadScenarios      = FALSE,
   try(setWinVal(c(runCommandText = op[[scenario]]$inputs$lastCommandRun)), silent=silent)
 }
 
-.runAllRetros <- function(silent = .SILENT){
+.runAllRetros <- function(delaydiff = FALSE,
+                          silent = .SILENT){
   # Run retrospectives for all scenarios. Use value in entry box for years.
   val <- getWinVal()
   for(scenario in 1:length(op)){
-    .runRetros(scenario)
+    .runRetros(scenario, delaydiff = val$delaydiff)
   }
 }
 
-.runRetros <- function(scenario = val$entryScenario, silent = .SILENT){
+.runRetros <- function(scenario  = val$entryScenario,
+                       delaydiff = FALSE,
+                       silent    = .SILENT){
   # Run retrospectives for the given scenario.
   # First you must agree to delete any old ones
   # Subdirectories 'RestrospectiveXX' will be created where XX is the number
@@ -1026,7 +1040,11 @@ iscam <- function(reloadScenarios      = FALSE,
     if(.OS == "Linux" || .OS == "Darwin"){
       modelCall <- paste0("./",modelCall)
     }
-    modelCall <- paste(modelCall,"-retro",retro)
+    if(val$delaydiff){
+      modelCall <- paste(modelCall, " -delaydiff -retro", retro)
+    }else{
+      modelCall <- paste(modelCall, "-retro", retro)
+    }
     modelCall <- paste(modelCall, .DOS_PIPE_TO_LOG)
 
     cat0(.PROJECT_NAME,"->",currFuncName,"Running retrospective\nScenario: ",
