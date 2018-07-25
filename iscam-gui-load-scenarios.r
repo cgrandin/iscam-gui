@@ -49,7 +49,7 @@
   if(length(dirList) == 0){
     return(NULL)
   }
-  # Remove instances of the tables and figures directory to avoid infinite recursion
+  # Remove instances of the tables, figures, and retrospective directories to avoid infinite recursion
   baseList <- basename(dirList)
   ind <- match(.FIGURES_DIR_NAME,baseList)
   if(!is.na(ind)){
@@ -721,6 +721,11 @@ readData <- function(file = NULL, verbose = FALSE){
   # remove comments which come at the end of a line
   dat <- gsub("#.*","",dat)
 
+  ## Used in retrospective cases or others where no comments are present,
+  if(!length(dat)){
+    dat <- data
+  }
+
   # remove preceeding and trailing whitespace
   dat <- gsub("^[[:blank:]]+","",dat)
   dat <- gsub("[[:blank:]]+$","",dat)
@@ -772,7 +777,7 @@ readData <- function(file = NULL, verbose = FALSE){
   ## Abundance indices are a ragged object and are stored as a list of matrices
   tmp$nit     <- as.numeric(dat[ind <- ind + 1])
   tmp$nitnobs <- as.numeric(strsplit(dat[ind <- ind + 1],"[[:blank:]]+")[[1]])
-  tmpsurvtype <- as.numeric(strsplit(dat[ind <- ind + 1],"[[:blank:]]+")[[1]])
+  tmp$survtype <- as.numeric(strsplit(dat[ind <- ind + 1],"[[:blank:]]+")[[1]])
   #nrows <- sum(tmp$nitnobs)
   tmp$indices <- list()
   for(index in 1:tmp$nit){
@@ -849,6 +854,109 @@ readData <- function(file = NULL, verbose = FALSE){
   return(tmp)
 }
 
+writeData <- function(file = NULL,
+                      d,
+                      retro = 0){
+
+  endyr <- d$nyr - retro
+  str <- paste(d$narea,
+               d$ngroup,
+               d$nsex,
+               d$syr,
+               endyr,
+               d$sage,
+               d$nage,
+               d$ngear,
+               paste(d$alloc, collapse = " "),
+
+               d$linf,
+               d$k,
+               d$to,
+               d$lwscal,
+               d$lwpow,
+               d$age50,
+               d$sd50,
+               d$usemat,
+               d$matvec, ## Note this could be a vector in which case this will break
+
+               d$dd.kage,
+               d$dd.alpha.g,
+               d$dd.rho.g,
+               d$dd.wk,
+
+               nrow(d$catch[d$catch[,1] <= endyr,]),
+               "\n",
+               sep = "\n")
+  cat(str,
+      file = file,
+      append = FALSE)
+  write.table(d$catch[d$catch[,1] <= endyr,],
+              file = file,
+              append = TRUE,
+              col.names = FALSE,
+              row.names = FALSE)
+
+  cat(d$nit,
+      "\n",
+      file = file,
+      append = TRUE)
+
+  ## Indices data. First have to determine how many are to going to be removed,
+  ##  to write the total number to the file, then remove them and write the data
+  for(i in 1:d$nit){
+    x <- d$indices[[i]]
+    num <- nrow(x[x[,1] <= endyr,])
+    cat(num, " ",
+        file = file,
+        append = TRUE)
+  }
+  cat0("\n",
+       paste(d$survtype, collapse = " "),
+       "\n",
+       file = file,
+       append = TRUE)
+
+  for(i in 1:d$nit){
+    x <- d$indices[[i]]
+    write.table(x[x[,1] <= endyr,],
+                file = file,
+                append = TRUE,
+                col.names = FALSE,
+                row.names = FALSE)
+  }
+  str <- paste(d$nagears,
+               paste(d$nagearsvec, collapse = " "),
+               d$nagearssage,
+               d$nagearsnage,
+               d$eff,
+               d$agecompflag,
+               ## d$agecomps, ## Note this will break if d$agecompflag != 1
+               ## This is where the age comp data should go if it exists
+               d$nwttab,
+               d$nwtobs,
+               d$nmeanwt,
+               "\n",
+               sep = "\n")
+  cat(str,
+      file = file,
+      append = TRUE)
+
+  cat(nrow(d$meanwtdata[d$meanwtdata[,1] <= endyr - 1,]),
+      "\n",
+      file = file,
+      append = TRUE)
+
+  write.table(d$meanwtdata[d$meanwtdata[,1] <= endyr - 1,],
+              file = file,
+              append = TRUE,
+              col.names = FALSE,
+              row.names = FALSE)
+
+  cat(999,
+      "\n",
+      file = file,
+      append = TRUE)
+}
 
 readControl <- function(file = NULL, ngears = NULL, nagears = NULL, verbose = FALSE){
   # Read in the iscam control file given by 'file'

@@ -46,6 +46,7 @@ plotCohorts <- function(scenario   = 1,         # Scenario number
 
   # Fill in the last row of the matrix with the main run's output
   recdevmat[numRetros,] <- op[[scenario]]$outputs$par$log_rec_devs[numYears:(numYears - numRetros +1)]
+browser()
 
   # Fill in the rest of the matrix with the retrospective data
   for(retro in 1:(numRetros-1)){

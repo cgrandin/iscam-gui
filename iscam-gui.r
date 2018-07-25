@@ -707,17 +707,6 @@ iscam <- function(reloadScenarios      = FALSE,
          "runAllRetros" = {
            .runAllRetros()
          },
-         "runDDRetros" = {
-           .runRetros(delaydiff = TRUE)
-           # Reload this scenario, which does a recursive load of the retrospective runs
-           cat0(.PROJECT_NAME,"->",currFuncName,"Loading output from retrospective runs..\n")
-           op[[scenario]] <<- .loadScenario(scenario, dired=op[[scenario]]$names$dir)
-           .updateGUIStamps()
-           alarm() # Sound an alarm to notify user that runs are finished
-         },
-         "runAllDDRetros" = {
-           .runAllRetros(delaydiff = TRUE)
-         },
          "saveCurrFigure" = {
            .doPlots(savefig=TRUE)
          },
@@ -941,17 +930,16 @@ iscam <- function(reloadScenarios      = FALSE,
   try(setWinVal(c(runCommandText = op[[scenario]]$inputs$lastCommandRun)), silent=silent)
 }
 
-.runAllRetros <- function(delaydiff = FALSE,
-                          silent = .SILENT){
+.runAllRetros <- function(silent = .SILENT){
   # Run retrospectives for all scenarios. Use value in entry box for years.
   val <- getWinVal()
   for(scenario in 1:length(op)){
-    .runRetros(scenario, delaydiff = val$delaydiff)
+    .runRetros(scenario)
   }
 }
 
 .runRetros <- function(scenario  = val$entryScenario,
-                       delaydiff = FALSE,
+                       delaydiff = val$delaydiff,
                        silent    = .SILENT){
   # Run retrospectives for the given scenario.
   # First you must agree to delete any old ones
@@ -1037,16 +1025,19 @@ iscam <- function(reloadScenarios      = FALSE,
     # change to this scenario's directory
     setwd(retroDir)
     modelCall <- .EXE_FILE_NAME
-    if(.OS == "Linux" || .OS == "Darwin"){
+    if(.OS == "Linux" | .OS == "Darwin"){
       modelCall <- paste0("./",modelCall)
     }
-    if(val$delaydiff){
-      modelCall <- paste(modelCall, " -delaydiff -retro", retro)
+    if(delaydiff){
+      ## Create data file that has data stripped and re-run model
+      d <- op[[scenario]]$inputs$data
+      fn <- strsplit(op[[scenario]]$names$data, "/")[[1]]
+      fn <- file.path(retroDir, fn[length(fn)])
+      writeData(file = fn, d, retro = retro)
     }else{
       modelCall <- paste(modelCall, "-retro", retro)
+      modelCall <- paste(modelCall, .DOS_PIPE_TO_LOG)
     }
-    modelCall <- paste(modelCall, .DOS_PIPE_TO_LOG)
-
     cat0(.PROJECT_NAME,"->",currFuncName,"Running retrospective\nScenario: ",
          op[[scenario]]$names$scenario,"\nRetroyear: -",retro,"\n")
     shell(modelCall)
