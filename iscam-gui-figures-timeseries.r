@@ -1175,7 +1175,7 @@ plotMeanWeight <-    function(out       = NULL,
   yr <- op[[scenario]]$inputs$data$meanwtdata[,1]
   obs <- mpd$obs_annual_mean_weight
   fit <- mpd$annual_mean_weight
- browser()
+
   plot(yr,
        fit,
        type = "l",
