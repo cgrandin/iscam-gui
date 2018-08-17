@@ -301,7 +301,7 @@ plotTS <- function(scenario   = 1,         # Scenario number
       cat0(.PROJECT_NAME,"->",currFuncName,"MCMC plots for mean weight fits not implemented. Plotting MPD.")
   	}
     ## Add SD for mean weight to out object
-    out$mean_wt_sd <- op[[1]]$inputs$control$weight_sig
+    out$mean_wt_sd <- op[[scenario]]$inputs$control$weight_sig
     plotMeanWeight(out,
                    colors,
                    names,
@@ -310,7 +310,8 @@ plotTS <- function(scenario   = 1,         # Scenario number
                    leg = leg,
                    showtitle = showtitle,
                    opacity = opacity,
-                   add = add)
+                   add = add,
+                   scenario = scenario)
   }
 
   if(!is.null(indletter)){
@@ -1128,7 +1129,8 @@ plotMeanWeight <-    function(out       = NULL,
                               showtitle = TRUE,
                               leg         = "topright",
                               add       = FALSE,
-                              opacity   = 90){
+                              opacity   = 90,
+                              scenario){
   # MPD mean weight fits
   # out is a list of the mpd outputs to show on the plot
   # col is a list of the colors to use in the plot
@@ -1168,9 +1170,9 @@ plotMeanWeight <-    function(out       = NULL,
   if(showtitle){
     title <- "Mean weight fits"
   }
-
+ 
   mpd <- out[[1]]$mpd
-  yr <- mpd$yr[1:(length(mpd$yr) - 1)]
+  yr <- op[[scenario]]$inputs$data$meanwtdata[,1]
   obs <- mpd$obs_annual_mean_weight
   fit <- mpd$annual_mean_weight
 
@@ -2876,7 +2878,7 @@ plotIndexData <- function(scenario   = NULL,
   on.exit(par(oldPar))
 
   # Get index names included in the model
-  inputs <- op[[1]]$inputs$data
+  inputs <- op[[scenario]]$inputs$data
   indices <- inputs$indices
   gearindices <- NULL
   for(ind in 1:length(indices)){
