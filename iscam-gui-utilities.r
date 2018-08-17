@@ -203,12 +203,12 @@ drawEnvelope <- function(yrs, quants, color, yLower = 0, yUpper, first, opacity 
     plot(yrs, median, type="l", col=color, lty=1, lwd=2, ylim=c(0,yUpper), ...)
   }else{
     lines(yrs, median, type="l", col=color, lty=1, lwd=2, ylim=c(0,yUpper), ...)
-  }
+   }
 
   shade <- .getShade(color, opacity)
   polyYears <- c(yrs, rev(yrs))
   polyCI <- c(lower, rev(upper))
-  polygon(polyYears, polyCI, col = shade)
+  polygon(polyYears, polyCI, col = shade, border=color)
 
   ## Make the function the following to have first model shaded but the rest not
   ## if(first){
